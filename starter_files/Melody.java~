@@ -1,0 +1,105 @@
+public class Melody{
+	private LinkedQueue<Note> s = new LinkedQueue<Note>();
+	private double totalDuration = 0;
+	
+	// constructor that stores the passed in queue o notes
+	public Melody(QueueInterface<Note> song){
+		int repeat = 0;
+		
+		while (!song.isEmpty()){
+			Note n = song.dequeue();
+			s.enqueue(n);
+			if (n.isRepeat())
+				repeat ++;
+			
+			if (repeat > 0){
+				totalDuration += n.getDuration();
+				if (repeat == 2)
+					repeat = 0;
+			}
+			
+			totalDuration += n.getDuration();
+		}
+	}
+	
+	// return the total duration for the song
+	public double getTotalDuration(){
+		return totalDuration;				
+	}
+	
+	// display information for each note
+	public String toString(){
+		for (int i = s.size(); i > 0; i--){
+			Note n = s.dequeue();
+			if (n.getPitch().equals("R"))
+				System.out.println("Duration: " + n.getDuration() + " Pitch: " + n.getPitch()+" Repeat: " + n.isRepeat());
+			else 
+				System.out.println("Duration: " + n.getDuration() + " Pitch: " + n.getPitch()+ " Octave: " + n.getOctave() + " Accidental: " + n.getAccidental() + " Repeat: " + n.isRepeat());
+			s.enqueue(n);
+		}
+		return "";
+	}
+	
+	// change the tempo
+	public void changeTempo(double tempo){
+		for (int i = s.size(); i > 0; i--){
+			Note n = s.dequeue();
+			n.setDuration(n.getDuration()*tempo); // multiply by the given tempo
+			s.enqueue(n);
+		}
+		totalDuration = totalDuration*tempo;		
+	}
+	
+	// reverse the order of notes (use a stack to reverse the order)
+	public void reverse(){
+		VectorStack<Note> s1 = new VectorStack<Note>();
+		while(!s.isEmpty()){
+			s1.push(s.dequeue());
+		}
+		
+		while(!s1.isEmpty()){
+			s.enqueue(s1.pop());
+		}
+	}
+	
+	// Append the notes for two songs
+	public void append(Melody other){
+		while (!other.getQueue().isEmpty()){
+			Note n = other.getQueue().dequeue();
+			getQueue().enqueue(n);
+			other.getQueue().enqueue(n);
+			totalDuration += n.getDuration();
+			System.out.println("dsfdsf");
+		}
+	}
+	
+	public LinkedQueue<Note> getQueue(){
+		return s;
+	}
+	// play the song
+	public void play(){
+		LinkedQueue<Note> temp = new LinkedQueue<Note>();
+		int repeat = 0;
+		
+		for (int i = s.size(); i > 0; i--){
+			Note n1 = s.dequeue();
+			
+			if (n1.isRepeat())
+				repeat++;
+			if (repeat > 0)
+				temp.enqueue(n1);
+			
+			n1.play();
+			
+			if (repeat == 2){
+				while(!temp.isEmpty()){
+					Note n2 = temp.dequeue();
+					n2.play();
+				}
+				repeat = 0;
+			}
+			s.enqueue(n1);
+		}		
+	}
+}
+	
